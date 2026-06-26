@@ -167,6 +167,23 @@ class plt_one_addpt_onclick:
             artist.remove()
         self.fig.canvas.draw()
 
+    # def resize_sq(self, bcid):
+    #     """ resizes the check box """
+    #     #future reference
+    #     #print(f"width  : {bcid.rectangles[0].get_width()}")
+    #     #print(f"height : {bcid.rectangles[0].get_height()}")
+    #     #print(f"xy     : {bcid.rectangles[0].get_xy()}")
+    #     #print(f"bb     : {bcid.rectangles[0].get_bbox()}")
+    #     #print(f"points : {bcid.rectangles[0].get_bbox().get_points()}")  #[[xmin,ymin],[xmax,ymax]]
+    #     pass
+    #     # h = bcid.rectangles[0].get_height()
+    #     # bcid.rectangles[0].set_height(3*h)
+
+    #     # ymax = bcid.rectangles[0].get_bbox().y1
+    #     # ymin = bcid.rectangles[0].get_bbox().y0
+
+    #     # bcid.lines[0][0].set_ydata([ymax,ymin])
+    #     # bcid.lines[0][1].set_ydata([ymin,ymax])
     def resize_sq(self, bcid):
         """ resizes the check box """
         #future reference
@@ -175,12 +192,30 @@ class plt_one_addpt_onclick:
         #print(f"xy     : {bcid.rectangles[0].get_xy()}")
         #print(f"bb     : {bcid.rectangles[0].get_bbox()}")
         #print(f"points : {bcid.rectangles[0].get_bbox().get_points()}")  #[[xmin,ymin],[xmax,ymax]]
+        
+        # 检查 bcid 是否有 rectangles 属性（旧版 Matplotlib）
+        if hasattr(bcid, 'rectangles'):
+            h = bcid.rectangles[0].get_height()
+            bcid.rectangles[0].set_height(3*h)
 
-        h = bcid.rectangles[0].get_height()
-        bcid.rectangles[0].set_height(3*h)
+            ymax = bcid.rectangles[0].get_bbox().y1
+            ymin = bcid.rectangles[0].get_bbox().y0
 
-        ymax = bcid.rectangles[0].get_bbox().y1
-        ymin = bcid.rectangles[0].get_bbox().y0
-
-        bcid.lines[0][0].set_ydata([ymax,ymin])
-        bcid.lines[0][1].set_ydata([ymin,ymax])
+            bcid.lines[0][0].set_ydata([ymax,ymin])
+            bcid.lines[0][1].set_ydata([ymin,ymax])
+        # 新版 Matplotlib 使用 _boxes 属性
+        elif hasattr(bcid, '_boxes'):
+            h = bcid._boxes[0].get_height()
+            bcid._boxes[0].set_height(3*h)
+            
+            ymax = bcid._boxes[0].get_bbox().y1
+            ymin = bcid._boxes[0].get_bbox().y0
+            
+            # 检查 lines 的结构
+            if hasattr(bcid, 'lines') and len(bcid.lines) > 0:
+                if isinstance(bcid.lines[0], list) and len(bcid.lines[0]) >= 2:
+                    bcid.lines[0][0].set_ydata([ymax,ymin])
+                    bcid.lines[0][1].set_ydata([ymin,ymax])
+        # 如果以上属性都不存在，则不进行任何操作
+        else:
+            pass
